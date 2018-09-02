@@ -7,7 +7,7 @@ Default settings are set to `html` >> `css` flow. To change file types to get se
 
 ## Extension features
 
-- autocompletion of `classes` and `ids` to `stylesheet` documents
+- autocompletion of `classes` and `ids` within `stylesheet` documents
 - configuration of `file types`, `files`, `folders` or `workspaces` to work with
 - command palette configuration UI
 
@@ -43,9 +43,6 @@ Set custom glob pattern to get classes/ids from matched files. E.g.: `**/{folder
 
 - `html-to-css-autocompletion.excludePattern`  
 Set custom glob pattern to exclude search on pattern matches. E.g.: `**/{folderName1,folderName2,...}/**`
-
- 
-
 
 ## Contribute
 If you have any issues or would like to contribute to the development of this extension please drop by at [github](https://github.com/solnurkarim/HTML-to-CSS-autocompletion)/[github issues](https://github.com/solnurkarim/HTML-to-CSS-autocompletion/issues).
