@@ -1,4 +1,4 @@
-# HTML to CSS selectors autocompletion VSCode extension
+# HTML to CSS selectors autocompletion extension
 
 Provides autocompletion for classes and ids from `markup` documents to `stylesheets`.  
 Default settings are set to `html` >> `css` flow. To change file types to get selectors from or to set file types to be provided with autocompletion use `HTML to CSS autocompletion` extension configuration from `command palette` or VSCode `user settings`.
