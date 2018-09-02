@@ -2,7 +2,7 @@
 	"name": "html-to-css-autocompletion",
 	"displayName": "HTML to CSS autocompletion",
 	"description": "Provides autocompletion for classes and ids from markup documents to stylesheets.",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "solnurkarim",
 	"engines": {
 		"vscode": "^1.25.0"
@@ -17,36 +17,54 @@
 		"url": "https://github.com/solnurkarim/HTML-to-CSS-autocompletion.git"
 	},
 	"icon": "assets/logo.png",
-	"categories": [ "Programming Languages", "Other" ],
-	"activationEvents": [ "onLanguage:css" ],
+	"categories": [
+		"Programming Languages",
+		"Other"
+	],
+	"activationEvents": [
+		"onLanguage:css"
+	],
 	"contributes": {
 		"configuration": {
 			"title": "HTML to CSS autocompletion extension configuration",
 			"properties": {
 				"html-to-css-autocompletion.autocompletionFilesScope": {
 					"type": "string",
-					"enum": [ "multi-root", "workspace", "linked-files" ],
+					"enum": [
+						"multi-root",
+						"workspace",
+						"linked-files"
+					],
 					"default": "multi-root",
 					"description": "Defines scopes for extension to work with.\r\nmulti-root: all selectors found within all root folders will be visible to all stylesheets.\r\nworkspace: all selectors found within particular workspace folder/project will be visible to stylesheets within that workspace folder.\r\nlinked files: selectors will be provided only for linked stylesheets.\r\nDefault: \"multi-root\""
 				},
 				"html-to-css-autocompletion.getSelectorsFromFileTypes": {
 					"type": "array",
-					"default": [ "html", "php" ],
+					"default": [
+						"html",
+						"php"
+					],
 					"description": "Defines file types to be searched for classes/ids.\r\nDefaults: [\"html\", \"php\"]"
 				},
 				"html-to-css-autocompletion.provideSelectorsToFileTypes": {
 					"type": "array",
-					"default": [ "css" ],
+					"default": [
+						"css"
+					],
 					"description": "Defines file types to be provided with autocompletion.\r\nDefaults: [\"css\"]"
 				},
 				"html-to-css-autocompletion.folderNamesToBeIncluded": {
 					"type": "array",
-					"default": [ "" ],
+					"default": [
+						""
+					],
 					"description": "Defines only specific folder names to be searched. Default: [\"\"]"
 				},
 				"html-to-css-autocompletion.folderNamesToBeExcluded": {
 					"type": "array",
-					"default": [ "node_modules" ],
+					"default": [
+						"node_modules"
+					],
 					"description": "Defines folder names to be excluded from being searched. Default: [\"node_modules\"]"
 				},
 				"html-to-css-autocompletion.includePattern": {
