@@ -18,23 +18,68 @@ let config = workspace.getConfiguration('html-to-css-autocompletion');
 function activate(context) {
 	if (workspace.workspaceFolders.length !== 0) {
 		getPathList();
-	}
+		registerProviders();
 
-	const configCommand = commands.registerCommand('htmlToCssConfig', async function() {
-		const configMenuInput = await window.showQuickPick(Object.keys(configInputMethods));
+		const configCommand = commands.registerCommand('htmlToCssConfig', async function() {
+			const configMenuInput = await window.showQuickPick(Object.keys(configInputMethods));
 
-		if (configMenuInput) {
-			configMenuInput === 'Restore configurations to default'
-				? configInputMethods[configMenuInput]()
-				: await configInputMethods[configMenuInput].set();
-			if (configInput) {
-				window.showInformationMessage('HTML to CSS autocompletion: Configuration changes are now active.');
-				configInput = '';
+			if (configMenuInput) {
+				configMenuInput === 'Restore configurations to default'
+					? configInputMethods[configMenuInput]()
+					: await configInputMethods[configMenuInput].set().then(null, (err) => console.log(new Error(err)));
+				if (configInput) {
+					window.showInformationMessage('HTML to CSS autocompletion: Configuration changes are now active.');
+					configInput = '';
+				}
 			}
-		}
-	});
+		});
 
-	context.subscriptions.push(configCommand);
+		const configWatcher = workspace.onDidChangeConfiguration((e) => {
+			if (e.affectsConfiguration('html-to-css-autocompletion')) {
+				config = workspace.getConfiguration('html-to-css-autocompletion');
+				if (!isActiveRestoreAllConfigs) {
+					if (e.affectsConfiguration('html-to-css-autocompletion.autocompletionFilesScope'))
+						providerScope = config.get('autocompletionFilesScope');
+					if (
+						e.affectsConfiguration('html-to-css-autocompletion.getSelectorsFromFileTypes') ||
+						e.affectsConfiguration('html-to-css-autocompletion.folderNamesToBeIncluded') ||
+						e.affectsConfiguration('html-to-css-autocompletion.folderNamesToBeExcluded') ||
+						e.affectsConfiguration('html-to-css-autocompletion.includePattern') ||
+						e.affectsConfiguration('html-to-css-autocompletion.excludePattern')
+					)
+						getPathList();
+					// if (e.affectsConfiguration('html-to-css-autocompletion.provideSelectorsToFileTypes'))
+					// 	registerProviders();
+				}
+			}
+		});
+
+		const workspaceWatcher = workspace.onDidChangeWorkspaceFolders((e) => {
+			if (e.added) {
+				const newWorkspaceFolders = e.added;
+				for (let index in newWorkspaceFolders) {
+					const folder = newWorkspaceFolders[index];
+					getPathList(folder.uri.fsPath);
+				}
+			}
+
+			if (e.removed) {
+				const removedWorkspaceFolders = e.removed;
+				for (let index in removedWorkspaceFolders) {
+					const folder = removedWorkspaceFolders[index];
+					for (let obj in files) {
+						if (files[obj].workspaceFolder === folder.uri.fsPath) {
+							delete files[obj];
+						}
+					}
+				}
+			}
+		});
+
+		context.subscriptions.push(configCommand);
+		context.subscriptions.push(configWatcher);
+		context.subscriptions.push(workspaceWatcher);
+	}
 }
 exports.activate = activate;
 
@@ -104,12 +149,15 @@ function getPathList(workspaceFolder) {
 		exclude = `**/${excludeStr}/**`;
 	}
 
-	workspace.findFiles(include, exclude, 100).then((data) => {
-		data.forEach((uri) => {
-			createFileObject(uri);
-		});
-		getFiles();
-	});
+	workspace.findFiles(include, exclude, 100).then(
+		(data) => {
+			data.forEach((uri) => {
+				createFileObject(uri);
+			});
+			getFiles();
+		},
+		(err) => console.log(new Error(err))
+	);
 
 	setFSWatcher(include);
 }
@@ -250,14 +298,15 @@ function registerHoverProvider(languageFilter) {
 
 function registerProviders() {
 	if (providers.length > 0) removeDisposables(providers);
-	const providerConfig = config.get('provideSelectorsToFileTypes');
+	// temporarily disabled configuration
+	// const providerConfig = config.get('provideSelectorsToFileTypes');
+	const providerConfig = [ 'css', 'scss', 'less' ];
 	const languageFilter = providerConfig.map((fileType) => {
 		return { scheme: 'file', language: fileType };
 	});
 	registerItemProvider(languageFilter);
 	registerHoverProvider(languageFilter);
 }
-registerProviders();
 
 function getScopedSelectors(document) {
 	const workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri.fsPath;
@@ -321,33 +370,6 @@ function setFSWatcher(includePattern) {
 	});
 }
 
-// possible to add 'workspaceFolder.name' properties to 'files' object to avoid reading of existing workspace folders when adding/removing others
-workspace.onDidChangeWorkspaceFolders(
-	(e) => {
-		if (e.added) {
-			const newWorkspaceFolders = e.added;
-			for (let index in newWorkspaceFolders) {
-				const folder = newWorkspaceFolders[index];
-				getPathList(folder.uri.fsPath);
-			}
-		}
-
-		if (e.removed) {
-			const removedWorkspaceFolders = e.removed;
-			for (let index in removedWorkspaceFolders) {
-				const folder = removedWorkspaceFolders[index];
-				for (let obj in files) {
-					if (files[obj].workspaceFolder === folder.name) {
-						delete files[obj];
-					}
-				}
-			}
-		}
-	},
-	null,
-	providers
-);
-
 /**
  * config section
 */
@@ -381,22 +403,23 @@ const configInputMethods = {
 			updateConfig(this.configName, this.defaultVal);
 		}
 	},
-	'Set file types you want to provide classes/ids to': {
-		configName: 'provideSelectorsToFileTypes',
-		defaultVal: 'css',
-		set: async function() {
-			configInput = await window.showInputBox({
-				prompt: 'Set file types you want to provide classes/ids to. E.g.: css, ...',
-				placeHolder: 'css'
-			});
+	// temporarily disabled configuration
+	// 'Set file types you want to provide classes/ids to': {
+	// 	configName: 'provideSelectorsToFileTypes',
+	// 	defaultVal: 'css',
+	// 	set: async function() {
+	// 		configInput = await window.showInputBox({
+	// 			prompt: 'Set file types you want to provide classes/ids to. E.g.: css, ...',
+	// 			placeHolder: 'css'
+	// 		});
 
-			if (configInput) updateConfig(this.configName, configInput);
-			else if (configInput === '') askToDefault(this);
-		},
-		toDefault: function() {
-			updateConfig(this.configName, this.defaultVal);
-		}
-	},
+	// 		if (configInput) updateConfig(this.configName, configInput);
+	// 		else if (configInput === '') askToDefault(this);
+	// 	},
+	// 	toDefault: function() {
+	// 		updateConfig(this.configName, this.defaultVal);
+	// 	}
+	// },
 	'Set list of include folders': {
 		configName: 'folderNamesToBeIncluded',
 		defaultVal: '',
@@ -493,32 +516,12 @@ async function updateConfig(configName, userInput) {
 	await config.update(configName, input).then(null, (err) => console.log(new Error(err)));
 }
 
-const configWatcher = workspace.onDidChangeConfiguration((e) => {
-	if (e.affectsConfiguration('html-to-css-autocompletion')) {
-		config = workspace.getConfiguration('html-to-css-autocompletion');
-		if (!isActiveRestoreAllConfigs) {
-			if (e.affectsConfiguration('html-to-css-autocompletion.autocompletionFilesScope'))
-				providerScope = config.get('autocompletionFilesScope');
-			if (
-				e.affectsConfiguration('html-to-css-autocompletion.getSelectorsFromFileTypes') ||
-				e.affectsConfiguration('html-to-css-autocompletion.folderNamesToBeIncluded') ||
-				e.affectsConfiguration('html-to-css-autocompletion.folderNamesToBeExcluded') ||
-				e.affectsConfiguration('html-to-css-autocompletion.includePattern') ||
-				e.affectsConfiguration('html-to-css-autocompletion.excludePattern')
-			)
-				getPathList();
-			if (e.affectsConfiguration('html-to-css-autocompletion.provideSelectorsToFileTypes')) registerProviders();
-		}
-	}
-});
-
 function removeDisposables(disposables) {
 	if (disposables) {
 		disposables.forEach((disposable) => disposable.dispose());
 	} else {
 		watchers.forEach((disposable) => disposable.dispose());
 		providers.forEach((disposable) => disposable.dispose());
-		configWatcher.dispose();
 	}
 }
 

@@ -1,20 +1,20 @@
 # HTML to CSS selectors autocompletion extension
 
-Provides autocompletion for classes and ids from `markup` documents to `stylesheets`.  
-Default settings are set to `html` >> `css` flow. To change file types to get selectors from or to set file types to be provided with autocompletion use `HTML to CSS autocompletion` extension configuration from `command palette` or VSCode `user settings`.
+Provides autocompletion for `classes` and `ids` from `markup` documents to `stylesheets`.  
+Default settings are set to `html`/`php` >> `css`/`scss`/`less` flow.  
+To change file types to get selectors from use `HTML to CSS autocompletion` extension configuration from `command palette` or VSCode `user settings`.
 
 ![preview](assets/preview.gif)
 
 ## Extension features
 
-- autocompletion of `classes` and `ids` within `stylesheet` documents
-- configuration of `file types`, `files`, `folders` or `workspaces` to work with
-- command palette configuration UI
+- Autocompletion of `classes` and `ids` from `markup` documents to `CSS`, `SCSS` and `LESS` stylesheets
+- Configuration of `file types`, `files`, `folders` or `workspaces` to work with
 
 ## How to configure
 
-- Enter `HTML to CSS autocompletion: Extension Configuration` from the command palette.
-- `html-to-css-autocompletion` in VSCode user settings.
+- Enter `HTML to CSS autocompletion: Extension Configuration` from the command palette
+- `html-to-css-autocompletion` in VSCode user settings
 
 ![preview](assets/preview-config.gif)
 
@@ -29,8 +29,8 @@ Defines scope for extension to work with. `Options`:
 - `html-to-css-autocompletion.getSelectorsFromFileTypes`  
 Defines file types to be searched for classes and ids. Default: `html, php`  
 
-- `html-to-css-autocompletion.provideSelectorsToFileTypes`  
-Defines file types to be provided with autocompletion. Default: `css`  
+- `html-to-css-autocompletion.provideSelectorsToFileTypes` *temporarily disabled*  
+Defines file types to be provided with autocompletion. Default: `css, scss, less`  
 
 - `html-to-css-autocompletion.folderNamesToBeIncluded`  
 Defines only specific folder names to be searched. Default: `empty string`  
