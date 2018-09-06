@@ -1,14 +1,14 @@
 # HTML to CSS selectors autocompletion extension
 
 Provides autocompletion for `classes` and `ids` from `markup` documents to `stylesheets`.  
-Default settings are set to `html`/`php` >> `css`/`scss`/`less` flow.  
+Default settings are set to `html`/`php` >> `css`/`scss`/`less`/`sass`/`stylus` flow.  
 To change file types to get selectors from use `HTML to CSS autocompletion` extension configuration from `command palette` or VSCode `user settings`.
 
 ![preview](assets/preview.gif)
 
 ## Extension features
 
-- Autocompletion of `classes` and `ids` from `markup` documents to `CSS`, `SCSS` and `LESS` stylesheets
+- Autocompletion of `classes` and `ids` from `markup` documents to `CSS`, `SCSS`, `Less`, `Sass`, `Stylus` stylesheets
 - Configuration of `file types`, `files`, `folders` or `workspaces` to work with
 
 ## How to configure
@@ -29,9 +29,6 @@ Defines scope for extension to work with. `Options`:
 - `html-to-css-autocompletion.getSelectorsFromFileTypes`  
 Defines file types to be searched for classes and ids. Default: `html, php`  
 
-- `html-to-css-autocompletion.provideSelectorsToFileTypes` *temporarily disabled*  
-Defines file types to be provided with autocompletion. Default: `css, scss, less`  
-
 - `html-to-css-autocompletion.folderNamesToBeIncluded`  
 Defines only specific folder names to be searched. Default: `empty string`  
 
@@ -43,6 +40,9 @@ Set custom glob pattern to get classes/ids from matched files. E.g.: `**/{folder
 
 - `html-to-css-autocompletion.excludePattern`  
 Set custom glob pattern to exclude search on pattern matches. E.g.: `**/{folderName1,folderName2,...}/**`
+
+## Notice 06.09.2018
+Due to personal circumstances this extension will be removed from marketplace by the end of the next week.
 
 ## Contribute
 If you have any issues or would like to contribute to the development of this extension please drop by at [github](https://github.com/solnurkarim/HTML-to-CSS-autocompletion)/[github issues](https://github.com/solnurkarim/HTML-to-CSS-autocompletion/issues).

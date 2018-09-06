@@ -24,7 +24,9 @@
 	"activationEvents": [
 		"onLanguage:css",
 		"onLanguage:scss",
-		"onLanguage:less"
+		"onLanguage:less",
+		"onLanguage:sass",
+		"onLanguage:styl"
 	],
 	"contributes": {
 		"configuration": {
