@@ -13,20 +13,27 @@ const {
 } = require('vscode');
 const fs = require('fs');
 const Path = require('path');
+
+// get configuration settings from package.json on extension startup
 let config = workspace.getConfiguration('html-to-css-autocompletion');
 
+// VSCode extension API activate function
 function activate(context) {
+    // check if any workspaces/folders opened
     if (workspace.workspaceFolders.length !== 0) {
         getPathList();
         registerProviders();
 
-        const configCommand = commands.registerCommand('htmlToCssConfig', async function() {
+        // register command palette configuration
+        const configCommand = commands.registerCommand('htmlToCssConfig', async function () {
+            // show configuration menu UI on command activation
             const configMenuInput = await window.showQuickPick(Object.keys(configInputMethods));
 
+            // start handler for chosen setting
             if (configMenuInput) {
                 configMenuInput === 'Restore configurations to default'
                     ? configInputMethods[configMenuInput]()
-                    : await configInputMethods[configMenuInput].set().then(null, (err) => console.log(new Error(err)));
+                    : await configInputMethods[configMenuInput].set();
                 if (configInput) {
                     window.showInformationMessage('HTML to CSS autocompletion: Configuration changes are now active.');
                     configInput = '';
@@ -34,12 +41,14 @@ function activate(context) {
             }
         });
 
+        // fire handler when extension configuration has been changed from command palette or user settings
         const configWatcher = workspace.onDidChangeConfiguration((e) => {
             if (e.affectsConfiguration('html-to-css-autocompletion')) {
                 config = workspace.getConfiguration('html-to-css-autocompletion');
                 if (!isActiveRestoreAllConfigs) {
                     if (e.affectsConfiguration('html-to-css-autocompletion.autocompletionFilesScope'))
                         providerScope = config.get('autocompletionFilesScope');
+                    // fetch files and selectors based on new config settings
                     if (
                         e.affectsConfiguration('html-to-css-autocompletion.getSelectorsFromFileTypes') ||
                         e.affectsConfiguration('html-to-css-autocompletion.folderNamesToBeIncluded') ||
@@ -52,6 +61,7 @@ function activate(context) {
             }
         });
 
+        // update 'files' when workspace is added or removed
         const workspaceWatcher = workspace.onDidChangeWorkspaceFolders((e) => {
             if (e.added) {
                 const newWorkspaceFolders = e.added;
@@ -74,6 +84,7 @@ function activate(context) {
             }
         });
 
+        // will dispose watchers/listeners on extension deactivation or VScode exit
         context.subscriptions.push(configCommand);
         context.subscriptions.push(configWatcher);
         context.subscriptions.push(workspaceWatcher);
@@ -87,9 +98,11 @@ let watchers = [];
 let providers = [];
 let isActiveRestoreAllConfigs = false;
 
+// get all file paths if no workspace has been passed
 function getPathList(workspaceFolder) {
     if (!workspaceFolder) files = {};
 
+    // get from user settings which paths to include/exclude
     const includeFoldersConfig = config.get('folderNamesToBeIncluded');
     const excludeFoldersConfig = config.get('folderNamesToBeExcluded');
     const getFromFileTypesConfig = config.get('getSelectorsFromFileTypes');
@@ -147,6 +160,7 @@ function getPathList(workspaceFolder) {
         exclude = `**/${excludeStr}/**`;
     }
 
+    // create file object for each resolved path
     workspace.findFiles(include, exclude, 100).then(
         (data) => {
             data.forEach((uri) => {
@@ -157,9 +171,11 @@ function getPathList(workspaceFolder) {
         (err) => console.log(new Error(err))
     );
 
+    // set change/delete watcher for included files
     setFSWatcher(include);
 }
 
+// create object from the given path in 'files'
 function createFileObject(uri) {
     const path = uri.fsPath;
     files[path] = {
@@ -172,11 +188,14 @@ function createFileObject(uri) {
     };
 }
 
+// get data from paths
 function getFiles(fileChange) {
+    // get data from all paths in 'files' if no particular path has been received
     if (fileChange) {
         readFile(fileChange);
     } else {
         for (let obj in files) {
+            //skip if path has already been read
             if (files[obj].data) continue;
             const path = files[obj].path;
             readFile(path);
@@ -184,6 +203,7 @@ function getFiles(fileChange) {
     }
 }
 
+// get data from path then send it to parser
 function readFile(path) {
     fs.readFile(path, 'utf8', (err, file) => {
         if (err) {
@@ -195,6 +215,7 @@ function readFile(path) {
     files[path].isProcessing = true;
 }
 
+// get classes/ids and stylesheet paths from given file object
 function parseData(fileObj) {
     fileObj.selectors = {};
     fileObj.stylesheets = [];
@@ -223,12 +244,14 @@ function parseData(fileObj) {
     fileObj.isProcessing = false;
 }
 
+// set selectors within each file/path object
 function setFileObjectSelectors(fileObject, selector) {
     fileObject.selectors.hasOwnProperty(selector)
         ? fileObject.selectors[selector]++
         : (fileObject.selectors[selector] = 1);
 }
 
+// get each selector and some data about it from file/path object and store it in received object reference
 function getFileObjectSelectors(fileObj, selectorsObj) {
     for (let selector in fileObj.selectors) {
         if (selectorsObj.hasOwnProperty(selector)) {
@@ -256,12 +279,16 @@ function registerItemProvider(languageFilter) {
     const completionProvider = languages.registerCompletionItemProvider(languageFilter, {
         provideCompletionItems: (document, position, token, context) => {
             const items = [];
+            // get selectors within defined extension scope
             const scopedSelectors = getScopedSelectors(document);
 
+            // create completion items
             for (let selector in scopedSelectors) {
                 const selectorObj = scopedSelectors[selector];
                 const item = new CompletionItem(selector);
+                // set count and source data for given selector
                 item.documentation = getSelectorData(selectorObj);
+                // set icon
                 item.kind = 13;
                 items.push(item);
             }
@@ -275,6 +302,7 @@ function registerItemProvider(languageFilter) {
 function registerHoverProvider(languageFilter) {
     const hoverProvider = languages.registerHoverProvider(languageFilter, {
         provideHover: (document, position, token) => {
+            // get word at mouse pointer and return information about it if it's a class or id
             const start = new Position(position.line, 0);
             const end = new Position(position.line + 1, 0);
             const range = new Range(start, end);
@@ -282,6 +310,8 @@ function registerHoverProvider(languageFilter) {
             const selectorLeft = line.slice(null, position.character).match(/[\#\.][\w_-]*$/);
             const selectorRight = line.slice(position.character).match(/^[\w_-]*/);
             const selector = selectorLeft[0] + selectorRight[0];
+
+            // get selectors within defined extension scope
             const scopedSelectors = getScopedSelectors(document);
 
             if (scopedSelectors.hasOwnProperty(selector)) {
@@ -294,16 +324,22 @@ function registerHoverProvider(languageFilter) {
     providers.push(hoverProvider);
 }
 
+// register autocompletion and mouse hover providers
 function registerProviders() {
+    // dispose of already registered providers
     if (providers.length > 0) removeDisposables(providers);
+    // set file types to provide completions to
     const languageFilter = { scheme: 'file', pattern: '**/*.{css,scss,less,sass,styl}' };
     registerItemProvider(languageFilter);
     registerHoverProvider(languageFilter);
 }
 
+// check which extension scope is defined and return selectors from files within that scope
 function getScopedSelectors(document) {
     const workspaceFolder = workspace.getWorkspaceFolder(document.uri).uri.fsPath;
     let scopedSelectors = {};
+
+    // get selectors within particular workspace folder
     if (providerScope === 'workspace') {
         for (let obj in files) {
             const file = files[obj];
@@ -312,6 +348,7 @@ function getScopedSelectors(document) {
             }
         }
     } else if (providerScope === 'linked-files') {
+        // get selectors from files where active stylesheet has been defined within <link/> tag
         for (let obj in files) {
             const file = files[obj];
             for (let index in file.stylesheets) {
@@ -322,6 +359,7 @@ function getScopedSelectors(document) {
             }
         }
     } else {
+        // get all project selectors
         for (let obj in files) {
             const file = files[obj];
             getFileObjectSelectors(file, scopedSelectors);
@@ -331,6 +369,7 @@ function getScopedSelectors(document) {
     return scopedSelectors;
 }
 
+// set count and source data for completion/hover item
 function getSelectorData(selectorObj) {
     let itemDoc = new MarkdownString(
         '`' + selectorObj.selector + '`\r\n\r\n' + selectorObj.count + ' occurences in files:\r\n\r\n'
@@ -343,7 +382,10 @@ function getSelectorData(selectorObj) {
     return itemDoc;
 }
 
+
+// update file object data on file change/create/delete
 function setFSWatcher(includePattern) {
+    // dispose of already registered watchers
     if (watchers.length > 0) removeDisposables(watchers);
     const globWatcher = workspace.createFileSystemWatcher(includePattern);
     watchers.push(globWatcher);
@@ -368,22 +410,24 @@ function setFSWatcher(includePattern) {
 */
 
 let configInput;
+
+// show specified configuration input UI and update config or ask to restore config if no data provided
 const configInputMethods = {
     'Set autocompletion workspace scope': {
         configName: 'autocompletionFilesScope',
         defaultVal: 'multi-root',
-        set: async function() {
+        set: async function () {
             configInput = await window.showQuickPick(['multi-root', 'workspace', 'linked-files']);
             if (configInput) updateConfig(this.configName, configInput);
         },
-        toDefault: function() {
+        toDefault: function () {
             updateConfig(this.configName, this.defaultVal);
         }
     },
     'Set file types to be searched for classes/ids': {
         configName: 'getSelectorsFromFileTypes',
         defaultVal: 'html,php',
-        set: async function() {
+        set: async function () {
             configInput = await window.showInputBox({
                 prompt: 'Set file types to be searched for classes/ids. E.g.: html, php',
                 placeHolder: 'html'
@@ -392,14 +436,14 @@ const configInputMethods = {
             if (configInput) updateConfig(this.configName, configInput);
             else if (configInput === '') askToDefault(this);
         },
-        toDefault: function() {
+        toDefault: function () {
             updateConfig(this.configName, this.defaultVal);
         }
     },
     'Set list of include folders': {
         configName: 'folderNamesToBeIncluded',
         defaultVal: '',
-        set: async function() {
+        set: async function () {
             configInput = await window.showInputBox({
                 prompt: 'Sets folders to be searched for file types. E.g.: app, folderName, folderName2'
             });
@@ -407,14 +451,14 @@ const configInputMethods = {
             if (configInput) updateConfig(this.configName, configInput);
             else if (configInput === '') askToDefault(this);
         },
-        toDefault: function() {
+        toDefault: function () {
             updateConfig(this.configName, this.defaultVal);
         }
     },
     'Set list of exclude folders': {
         configName: 'folderNamesToBeExcluded',
         defaultVal: 'node_modules',
-        set: async function() {
+        set: async function () {
             configInput = await window.showInputBox({
                 prompt: 'Sets folders to be excluded from searching. E.g.: app, folderName, folderName2'
             });
@@ -422,14 +466,14 @@ const configInputMethods = {
             if (configInput) updateConfig(this.configName, configInput);
             else if (configInput === '') askToDefault(this);
         },
-        toDefault: function() {
+        toDefault: function () {
             updateConfig(this.configName, this.defaultVal);
         }
     },
     'Set include glob pattern': {
         configName: 'includePattern',
         defaultVal: '',
-        set: async function() {
+        set: async function () {
             configInput = await window.showInputBox({
                 prompt: 'Set include glob pattern. E.g.: **/{folderName1,folderName2,...}/*.{fileType1,fileType2,...}'
             });
@@ -437,14 +481,14 @@ const configInputMethods = {
             if (configInput) updateConfig(this.configName, configInput);
             else if (configInput === '') askToDefault(this);
         },
-        toDefault: function() {
+        toDefault: function () {
             updateConfig(this.configName, this.defaultVal);
         }
     },
     'Set exclude glob pattern': {
         configName: 'excludePattern',
         defaultVal: '',
-        set: async function() {
+        set: async function () {
             configInput = await window.showInputBox({
                 prompt: 'Set exclude glob pattern. E.g.: **/{folderName1,folderName2,...}/**'
             });
@@ -452,18 +496,17 @@ const configInputMethods = {
             if (configInput) updateConfig(this.configName, configInput);
             else if (configInput === '') askToDefault(this);
         },
-        toDefault: function() {
+        toDefault: function () {
             updateConfig(this.configName, this.defaultVal);
         }
     },
-    'Restore configurations to default': async function() {
+    // restore all extension settings to default, renew files data and re-register providers
+    'Restore configurations to default': async function () {
         isActiveRestoreAllConfigs = true;
         for (let key in this) {
             if (key !== 'Restore configurations to default') {
                 const configObj = this[key];
-                await updateConfig(configObj.configName, configObj.defaultVal).then(null, (err) =>
-                    console.log(new Error(err))
-                );
+                await updateConfig(configObj.configName, configObj.defaultVal);
             }
         }
         providerScope = config.get('autocompletionFilesScope');
@@ -474,11 +517,13 @@ const configInputMethods = {
     }
 };
 
+// show restore to default confirmation UI
 async function askToDefault(configObj) {
     const checkInput = await window.showQuickPick(['Restore to default', 'Cancel']);
     if (checkInput === 'Restore to default') configObj.toDefault();
 }
 
+// update extension configuration within user settings
 async function updateConfig(configName, userInput) {
     let input;
     if (
@@ -488,8 +533,7 @@ async function updateConfig(configName, userInput) {
     )
         input = userInput.split(',').map((elem) => elem.trim());
     else input = userInput.trim();
-    await config.update(configName, input)
-        .then(null, (err) => console.log(new Error(err)));
+    await config.update(configName, input);
 }
 
 function removeDisposables(disposables) {
@@ -501,6 +545,7 @@ function removeDisposables(disposables) {
     }
 }
 
+// will dispose watchers/providers on extension deactivation or VScode exit
 function deactivate() {
     removeDisposables();
 }
