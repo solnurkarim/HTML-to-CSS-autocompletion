@@ -2,7 +2,7 @@
 	"name": "html-to-css-autocompletion",
 	"displayName": "HTML to CSS autocompletion",
 	"description": "Provides completion suggestions for classes and ids from markup documents to stylesheets.",
-	"version": "0.0.4",
+	"version": "1.1.0",
 	"publisher": "solnurkarim",
 	"engines": {
 		"vscode": "^1.25.0"
