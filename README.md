@@ -7,7 +7,7 @@ To change file types you want to get selectors from use `HTML to CSS autocomplet
 
 ## Extension features
 
-- Autocompletion of `classes` and `ids` from `markup` documents to `CSS`, `SCSS`, `Less`, `Sass`, `Stylus` stylesheets
+- Intellisense completions for `classes` and `ids` from `markup` documents to `CSS`, `SCSS`, `Less`, `Sass`, `Stylus` stylesheets
 - Configuration of `file types`, `files`, `folders` or `workspaces` to work with
 
 ## How to configure
@@ -18,6 +18,9 @@ To change file types you want to get selectors from use `HTML to CSS autocomplet
 ![preview](assets/preview-config.gif)
 
 ## Configuration options
+
+- `html-to-css-autocompletion.triggerCharacters`
+  Shows completion list only on '#'/'.' character entries. Default: `disable`
 
 - `html-to-css-autocompletion.autocompletionFilesScope`  
   Defines scope for extension to work with. `Options`:  

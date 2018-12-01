@@ -1,3 +1,7 @@
+## 1.1.0
+- Added configuration of `trigger keys`. If `enabled`, type `#` or `.` to show completion item list
+- Fixed a bug when completion items have been visible within property lines with multiple values
+
 ## 0.0.4
 - Extension is now back alive
 - Completions are now being provided in a proper manner, that is not showing within url paths and all
