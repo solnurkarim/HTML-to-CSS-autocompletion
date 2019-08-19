@@ -7,7 +7,7 @@ To change file types you want to get selectors from use `HTML to CSS autocomplet
 
 ## Extension features
 
-- Intellisense completions for `classes` and `ids` from `markup` documents to `CSS`, `SCSS`, `Less`, `Sass`, `Stylus` stylesheets
+- Intellisense suggestions/completions for `classes` and `ids` from `markup` documents to `CSS`, `SCSS`, `Less`, `Sass`, `Stylus` stylesheets
 - Configuration of `file types`, `files`, `folders` or `workspaces` to work with
 
 ## How to configure
@@ -32,7 +32,7 @@ To change file types you want to get selectors from use `HTML to CSS autocomplet
   Defines file types to be searched for classes and ids. Default: `html, php`
 
 - `html-to-css-autocompletion.folderNamesToBeIncluded`  
-  Defines only specific folder names to be searched. Default: `empty string`
+  Defines only specific folder names to be searched. Default: `''`
 
 - `html-to-css-autocompletion.folderNamesToBeExcluded`  
   Defines folder names to be excluded from being searched. Default: `node_modules`
@@ -46,3 +46,13 @@ To change file types you want to get selectors from use `HTML to CSS autocomplet
 ## Contribute
 
 If you have any issues or would like to contribute to the development of this extension please drop by at [github](https://github.com/solnurkarim/HTML-to-CSS-autocompletion)/[github issues](https://github.com/solnurkarim/HTML-to-CSS-autocompletion/issues).
+
+Forks, pull request are welcome.
+
+## Donate
+
+If you find this extension helpful consider donating to help keep it alive.
+
+You can become a member at [patreon](https://www.patreon.com/solnurkarim) or check [Sponsor button](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) at [github page](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) for more donation options.
+
+![preview](assets/sponsor.png)
