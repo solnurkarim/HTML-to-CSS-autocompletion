@@ -1,4 +1,4 @@
-# HTML to CSS selectors autocompletion extension
+# HTML to CSS completion suggestions
 
 Default settings are set to `html`/`php` >> `css`/`scss`/`less`/`sass`/`stylus` flow.  
 To change file types you want to get selectors from use `HTML to CSS autocompletion` extension configuration from `command palette` or VSCode `user settings`.
@@ -53,6 +53,6 @@ Forks, pull request are welcome.
 
 If you find this extension helpful consider donating to help keep it alive.
 
-You can become a member at [patreon](https://www.patreon.com/solnurkarim) or check [Sponsor button](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) at [github page](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) for more donation options.
+You can become a member at [patreon](https://www.patreon.com/solnurkarim) or check [sponsor button](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) at [github page](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) for more donation options.
 
 ![preview](assets/sponsor.png)
