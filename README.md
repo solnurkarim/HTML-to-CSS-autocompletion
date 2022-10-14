@@ -42,17 +42,3 @@ To change file types you want to get selectors from use `HTML to CSS autocomplet
 
 - `html-to-css-autocompletion.excludePattern`  
   Set custom glob pattern to exclude search on pattern matches. E.g.: `**/{folderName1,folderName2,...}/**`
-
-## Contribute
-
-If you have any issues or would like to contribute to the development of this extension please drop by at [github](https://github.com/solnurkarim/HTML-to-CSS-autocompletion)/[github issues](https://github.com/solnurkarim/HTML-to-CSS-autocompletion/issues).
-
-Forks, pull request are welcome.
-
-## Donate
-
-If you find this extension helpful consider donating to help keep it alive.
-
-You can become a member at [patreon](https://www.patreon.com/solnurkarim) or check [sponsor button](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) at [github page](https://github.com/solnurkarim/HTML-to-CSS-autocompletion) for more donation options.
-
-![preview](assets/sponsor.png)
