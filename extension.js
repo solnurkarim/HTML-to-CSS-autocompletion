@@ -221,7 +221,7 @@ function parseData(fileObj) {
 	fileObj.selectors = {};
 	fileObj.stylesheets = [];
 	const file = fileObj.data;
-	let regex = /(class|id|rel=["'].*(stylesheet).*["'].+href)=["']([^"']+)["']/gi;
+	let regex = /(className|class|id|rel=["'].*(stylesheet).*["'].+href)=["']([^"']+)["']/gi;
 	let match;
 	let selector;
 
@@ -238,6 +238,12 @@ function parseData(fileObj) {
 		} else if (match[2] === 'stylesheet') {
 			const stylesheet = Path.resolve(Path.dirname(fileObj.path), match[3]);
 			fileObj.stylesheets.push(stylesheet);
+		} else if (match[1] === "className") {
+     			let matchArr = match[3].split(" ");
+   		   	for (let index in matchArr) {
+        			selector = "." + matchArr[index];
+        			setFileObjectSelectors(fileObj, selector);
+      			}
 		}
 		// else console.log(new Error('Unexpected pattern match: ' + match[0]));
 	}
@@ -470,10 +476,10 @@ const configInputMethods = {
 	},
 	'Set file types to be searched for classes/ids': {
 		configName: 'getSelectorsFromFileTypes',
-		defaultVal: 'html,php',
+		defaultVal: 'html,php,js',
 		set: async function() {
 			configInput = await window.showInputBox({
-				prompt: 'Set file types to be searched for classes/ids. E.g.: html, php',
+				prompt: 'Set file types to be searched for classes/ids. E.g.: html, php, js',
 				placeHolder: 'html'
 			});
 
